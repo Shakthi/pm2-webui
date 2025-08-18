@@ -12,7 +12,11 @@ function listApps(){
                 if (err) {
                     reject(err)
                 }
-                apps = apps.map((app) => {
+                apps = apps.sort((a, b) => {
+                    {
+                        return b.pm2_env.pm_uptime - a.pm2_env.pm_uptime; // sort by uptime if both are online or offline
+                    }
+                }).map((app) => {
                     return {
                         name: app.name,
                         status: app.pm2_env.status,
@@ -28,6 +32,21 @@ function listApps(){
     })
 }
 
+//remove /usr/local/bin or /usr/bin from the path
+function removeBinPath(path) {
+    return path.replace(/(\/usr\/local\/bin|\/usr\/bin)\/|\/bin\//g, '');
+}
+
+function appendInterpreter(interpreterPath) {
+    if (interpreterPath === "none") {
+        return "";
+    }
+    return `(${removeBinPath(interpreterPath)}) `;
+}
+
+
+
+
 function describeApp(appName){
     return new Promise((resolve, reject) => {
         pm2.connect((err) => {
@@ -42,6 +61,7 @@ function describeApp(appName){
                 if(Array.isArray(apps) && apps.length > 0){
                     const app = {
                         name: apps[0].name,
+                        start_cmd: appendInterpreter(apps[0].pm2_env.exec_interpreter) + ' ' + removeBinPath(apps[0].pm2_env.pm_exec_path) + ' ' +  ((apps[0].pm2_env.args)?apps[0].pm2_env.args.join(' '):''),
                         status: apps[0].pm2_env.status,
                         cpu: apps[0].monit.cpu,
                         memory: bytesToSize(apps[0].monit.memory),
