@@ -1,7 +1,7 @@
 const config = require('../config')
 const RateLimit = require('koa2-ratelimit').RateLimit;
 const router = require('@koa/router')();
-const { listApps, describeApp, reloadApp, restartApp, stopApp } = require('../providers/pm2/api')
+const { listApps, describeApp, reloadApp, restartApp, stopApp, gitPull } = require('../providers/pm2/api')
 const { validateAdminUser } = require('../services/admin.service')
 const  { readLogsReverse } = require('../utils/read-logs.util')
 const { getCurrentGitBranch, getCurrentGitCommit } = require('../utils/git.util')
@@ -139,6 +139,27 @@ router.post('/api/apps/:appName/stop', isAuthenticated, async (ctx) => {
     try{
         let { appName } = ctx.params
         let apps =  await stopApp(appName)
+        if(Array.isArray(apps) && apps.length > 0){
+            return ctx.body = {
+                success: true
+            }
+        }
+        return ctx.body = {
+            success: false
+        }
+    }
+    catch(err){
+        return ctx.body = {
+            'error':  err
+        }
+    }
+});
+
+
+router.post('/api/apps/:appName/gitPull', isAuthenticated, async (ctx) => {
+    try{
+        let { appName } = ctx.params
+        let apps =  await gitPull(appName)
         if(Array.isArray(apps) && apps.length > 0){
             return ctx.body = {
                 success: true

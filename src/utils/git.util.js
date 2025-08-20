@@ -22,7 +22,23 @@ const getCurrentGitCommit = async (cwd)=>{
     })
 }
 
+const getPullCurrentGitBranch = async (cwd)=>{
+    return new Promise((resolve, reject) => {
+        exec('git pull', { cwd }, (err, stdout, stderr) => {
+            if (!err && typeof stdout === 'string') {
+                console.log(stdout)
+                resolve(stdout.trim())
+            } else {
+                reject(err || stderr)
+            }
+        });
+    })
+    
+}
+
+
 module.exports = {
     getCurrentGitBranch,
-    getCurrentGitCommit
+    getCurrentGitCommit,
+    getPullCurrentGitBranch
 }

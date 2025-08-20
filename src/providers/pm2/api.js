@@ -1,6 +1,9 @@
 const pm2 = require('pm2');
 const { bytesToSize, timeSince } = require('./ux.helper')
 
+const { getPullCurrentGitBranch } = require('../../utils/git.util')
+
+
 function listApps(){
     return new Promise((resolve, reject) => {
         pm2.connect((err) => {
@@ -98,6 +101,38 @@ function reloadApp(process){
     })
 }
 
+function gitPull(process) {
+    return new Promise((resolve, reject) => {
+        pm2.connect((err) => {
+            if (err) return reject(err);
+
+            pm2.describe(process, async (err, apps) => {
+                if (err) {
+                    pm2.disconnect();
+                    return reject(err);
+                }
+
+                if (apps.length > 0) {
+                    const cwd = apps[0].pm2_env.pm_cwd;
+
+                    try {
+                        await getPullCurrentGitBranch(cwd);
+                        pm2.disconnect();
+                        resolve(`Pulled latest changes in ${cwd}`);
+                    } catch (gitErr) {
+                        pm2.disconnect();
+                        reject(gitErr);
+                    }
+
+                } else {
+                    pm2.disconnect();
+                    reject(new Error('App not found'));
+                }
+            });
+        });
+    });
+}
+
 function stopApp(process){
     return new Promise((resolve, reject) => {
         pm2.connect((err) => {
@@ -137,6 +172,7 @@ module.exports = {
     describeApp,
     reloadApp,
     stopApp,
-    restartApp
+    restartApp,
+    gitPull
 }
 

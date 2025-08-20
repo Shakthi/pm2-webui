@@ -1,6 +1,8 @@
 const fs = require('fs');
 const envfile = require('envfile')
 const path = require('path')
+const { exec } = require('child_process');
+
 
 const getEnvFileContent = async (wd)=>{
     const envPath = path.join(wd, '.env')
@@ -31,6 +33,7 @@ const setEnvDataSync = (wd, envData) => {
     fs.writeFileSync(envPath, envfile.stringify(finalData))
     return true
 }
+
 
 module.exports = {
     getEnvFileContent,
