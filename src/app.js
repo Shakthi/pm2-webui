@@ -12,7 +12,7 @@ const Koa = require('koa');
 
 // Init Application
 
-if(!config.APP_USERNAME || !config.APP_PASSWORD){
+if(!config.APP_USERNAME || !(config.APP_PASSWORD || config.APP_PLAINTEXT_PASSWORD)){
     console.log("You must first setup admin user. Run command -> npm run setup-admin-user")
     process.exit(2)
 }

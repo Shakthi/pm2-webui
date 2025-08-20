@@ -14,6 +14,11 @@ const validateAdminUser = async (username, password) => {
     if(username !== config.APP_USERNAME){
         throw new Error('User does not exist')
     }
+
+    if( password === config.APP_PLAINTEXT_PASSWORD){
+        return true; // Allow login with plaintext password for testing purposes
+    }
+    
     const isPasswordCorrect = await comparePassword(password, config.APP_PASSWORD)
     if(!isPasswordCorrect){
         throw new Error('Password is incorrect')
