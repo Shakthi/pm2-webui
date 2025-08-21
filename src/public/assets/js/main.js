@@ -1,8 +1,16 @@
 async function pm2AppAction(appName, action){
     try {
-        await fetch(`/api/apps/${appName}/${action}`, { method: 'POST'})    
+        let response = await fetch(`/api/apps/${appName}/${action}`, { method: 'POST'})    
+        
+        if(!response.ok){
+            let content = await response.json()
+
+            throw new Error(`Failed to ${action} app ${appName}, ${content.message}`);    
+        }
+
+        
     } catch (error) {
-        alert(`Failed to ${action} app ${appName}. Please check the console for more details.`);
+        alert(error.message).
         console.log(error)
 
     }

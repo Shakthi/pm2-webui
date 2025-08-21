@@ -169,10 +169,11 @@ router.post('/api/apps/:appName/gitPull', isAuthenticated, async (ctx) => {
             success: false
         }
     }
-    catch(err){
-        return ctx.body = {
-            'error':  err
-        }
+    catch (err) {
+         ctx.status = 500; 
+         ctx.type = "application/json";
+         ctx.body = { success: false, message: err.message };
+
     }
 });
 
