@@ -158,7 +158,7 @@ router.post('/api/apps/:appName/stop', isAuthenticated, async (ctx) => {
 });
 
 
-router.post('/api/apps/:appName/gitPull', isAuthenticated, async (ctx) => {
+router.post('/api/apps/:appName/git-pull', isAuthenticated, async (ctx) => {
     try{
         let { appName } = ctx.params
         let apps =  await gitPull(appName)

@@ -118,7 +118,7 @@
                 </svg>
                 Reload
               </button>
-              <button class="btn btn-sm btn-green mb-2 me-2" aria-label="Button" onclick="pm2AppAction('<%= app.name %>', 'gitPull')">
+              <button class="btn btn-sm btn-green mb-2 me-2" aria-label="Button" onclick="pm2AppAction('<%= app.name %>', 'git-pull')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                   <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
@@ -159,7 +159,7 @@
                 </svg>
                 Restart
               </button>
-               <button class="btn btn-sm btn-green mb-2 me-2" aria-label="Button" onclick="pm2AppAction('<%= app.name %>', 'gitPull')">
+               <button class="btn btn-sm btn-green mb-2 me-2" aria-label="Button" onclick="pm2AppAction('<%= app.name %>', 'git-pull')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                   <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
@@ -173,7 +173,7 @@
         <div class="card-footer text-center">
           <% if (app.package_scripts) { %>
             <button class="btn btn-sm btn-green mb-2 me-2" aria-label="Npm install"
-              onclick="pm2AppAction('<%= app.name %>', 'reload')">
+              onclick="pm2AppAction('<%= app.name %>', 'npm-install')">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24"
                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
@@ -243,7 +243,7 @@
               Restart
             </button>
             <button class="btn btn-sm btn-green mb-2 me-2" aria-label="Git pull"
-              onclick="pm2AppAction('<%= app.name %>', 'gitPull')">
+              onclick="pm2AppAction('<%= app.name %>', 'git-pull')">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24"
                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                 stroke-linecap="round" stroke-linejoin="round">
