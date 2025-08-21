@@ -6,6 +6,7 @@ const { validateAdminUser } = require('../services/admin.service')
 const  { readLogsReverse } = require('../utils/read-logs.util')
 const { getCurrentGitBranch, getCurrentGitCommit } = require('../utils/git.util')
 const { getEnvFileContent } = require('../utils/env.util')
+const { getPackageJsonScripts } = require('../utils/package-json.util')
 const { isAuthenticated, checkAuthentication }= require('../middlewares/auth')
 const AnsiConverter = require('ansi-to-html');
 const ansiConvert = new AnsiConverter();
@@ -56,6 +57,7 @@ router.get('/apps/:appName', isAuthenticated, async (ctx) => {
         app.start_script = app.start_cmd
         app.git_commit = await getCurrentGitCommit(app.pm2_env_cwd)
         app.env_file = await getEnvFileContent(app.pm2_env_cwd)
+        app.package_scripts = await getPackageJsonScripts(app.pm2_env_cwd)
         const stdout = await readLogsReverse({filePath: app.pm_out_log_path})
         const stderr = await readLogsReverse({filePath: app.pm_err_log_path})
         stdout.lines = stdout.lines.map(log => {

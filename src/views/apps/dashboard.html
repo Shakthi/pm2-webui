@@ -58,7 +58,7 @@
                 Uptime : <%= app.uptime %></h4>
             </div>
           </a>
-          <div class="card-footer text-center">
+          <div class="card-footer text-center ">
             <% if(app.status === "online"){ %>
               <button class="btn btn-sm btn-green" aria-label="Button" onclick="pm2AppAction('<%= app.name %>', 'reload')">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
