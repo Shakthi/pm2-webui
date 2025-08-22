@@ -2,7 +2,7 @@ const pm2 = require('pm2');
 const { bytesToSize, timeSince } = require('./ux.helper')
 
 const { getPullCurrentGitBranch } = require('../../utils/git.util')
-
+const { doNPMInstall } = require('../../utils/package-json.util')
 
 function listApps(){
     return new Promise((resolve, reject) => {
@@ -133,6 +133,40 @@ function gitPull(process) {
     });
 }
 
+
+function npmInstall(process) {
+    return new Promise((resolve, reject) => {
+        pm2.connect((err) => {
+            if (err) return reject(err);
+
+            pm2.describe(process, async (err, apps) => {
+                if (err) {
+                    pm2.disconnect();
+                    return reject(err);
+                }
+
+                if (apps.length > 0) {
+                    const cwd = apps[0].pm2_env.pm_cwd;
+
+                    try {
+                        await doNPMInstall(cwd);
+                        pm2.disconnect();
+                        resolve(`Installed dependencies in ${cwd}`);
+                    } catch (gitErr) {
+                        pm2.disconnect();
+                        reject(gitErr);
+                    }
+
+                } else {
+                    pm2.disconnect();
+                    reject(new Error('App not found'));
+                }
+            });
+        });
+    });
+}
+
+
 function stopApp(process){
     return new Promise((resolve, reject) => {
         pm2.connect((err) => {
@@ -173,6 +207,7 @@ module.exports = {
     reloadApp,
     stopApp,
     restartApp,
-    gitPull
+    gitPull,
+    npmInstall
 }
 

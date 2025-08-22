@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path')
+const { exec } = require('child_process');
 
 
 const getPackageJson = async (wd)=>{
@@ -88,6 +89,15 @@ const getLockedOperation = async (wd) => {
         return null
     }
 }
+async function fileExists(path) {
+  try {
+    await fs.promises.access(path);
+    return true; // file exists
+  } catch {
+    return false; // file does not exist
+  }
+}
+
 
 const doNPMInstall = async (wd) => {
     await createLockFile(wd, 'npm-install')
@@ -96,9 +106,13 @@ const doNPMInstall = async (wd) => {
 
     let cmd = ""
 
-    let packageLockExists = await fs.promises.access(packageLock, fs.constants.F_OK);
-    let yarnLockExists = await fs.promises.access(yarnLock, fs.constants.F_OK);
+    console.log('Package Lock : ', packageLock)
+    console.log('Yarn Lock : ', yarnLock)
+
+    let packageLockExists = await fileExists(packageLock)
+    let yarnLockExists = await fileExists(yarnLock)
     if(packageLockExists && yarnLockExists){
+         deleteLockFile(wd)
         throw new Error("Cannot have both yarn.lock and package-lock.json")
     }
 
@@ -110,7 +124,11 @@ const doNPMInstall = async (wd) => {
 
 
     return new Promise((resolve, reject) => {
-        exec(cmd, { cwd }, (err, stdout, stderr) => {
+        exec(cmd, { wd }, (err, stdout, stderr) => {
+            
+            console.log(stdout )
+            console.log(stderr )
+
             if (!err && typeof stdout === 'string') {
                 deleteLockFile(wd)
                 resolve(stdout.trim())

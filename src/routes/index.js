@@ -1,12 +1,12 @@
 const config = require('../config')
 const RateLimit = require('koa2-ratelimit').RateLimit;
 const router = require('@koa/router')();
-const { listApps, describeApp, reloadApp, restartApp, stopApp, gitPull } = require('../providers/pm2/api')
+const { listApps, describeApp, reloadApp, restartApp, stopApp, gitPull, npmInstall } = require('../providers/pm2/api')
 const { validateAdminUser } = require('../services/admin.service')
 const  { readLogsReverse } = require('../utils/read-logs.util')
 const { getCurrentGitBranch, getCurrentGitCommit } = require('../utils/git.util')
 const { getEnvFileContent } = require('../utils/env.util')
-const { getPackageJsonScripts } = require('../utils/package-json.util')
+const { getPackageJsonScripts,getLockedOperation } = require('../utils/package-json.util')
 const { isAuthenticated, checkAuthentication }= require('../middlewares/auth')
 const AnsiConverter = require('ansi-to-html');
 const ansiConvert = new AnsiConverter();
@@ -58,6 +58,8 @@ router.get('/apps/:appName', isAuthenticated, async (ctx) => {
         app.git_commit = await getCurrentGitCommit(app.pm2_env_cwd)
         app.env_file = await getEnvFileContent(app.pm2_env_cwd)
         app.package_scripts = await getPackageJsonScripts(app.pm2_env_cwd)
+        app.running_scripts =  await getLockedOperation(app.pm2_env_cwd)
+
         const stdout = await readLogsReverse({filePath: app.pm_out_log_path})
         const stderr = await readLogsReverse({filePath: app.pm_err_log_path})
         stdout.lines = stdout.lines.map(log => {
@@ -154,6 +156,30 @@ router.post('/api/apps/:appName/stop', isAuthenticated, async (ctx) => {
         return ctx.body = {
             'error':  err
         }
+    }
+});
+
+
+router.post('/api/apps/:appName/npm-install', isAuthenticated, async (ctx) => {
+    try{
+        let { appName } = ctx.params
+        let apps =  await npmInstall(appName)
+        console.log("apps ", apps);
+        if(Array.isArray(apps) && apps.length > 0){
+            return ctx.body = {
+                success: true
+            }
+        }
+        return ctx.body = {
+            success: false
+        }
+    }
+    catch (err) {
+        console.error(err)
+         ctx.status = 500; 
+         ctx.type = "application/json";
+         ctx.body = { success: false, message: err.message };
+
     }
 });
 
