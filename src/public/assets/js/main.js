@@ -1,4 +1,4 @@
-async function pm2AppAction(appName, action){
+async function pm2AppAction(appName, action,data){
     try {
 
         
@@ -10,9 +10,12 @@ async function pm2AppAction(appName, action){
         }
         
 
+        let dataQueryParam = '';
+        if(data){
+            dataQueryParam = `?data=${data}`
+        }
 
-
-        let response = await fetch(`/api/apps/${appName}/${action}`, { method: 'POST'})    
+        let response = await fetch(`/api/apps/${appName}/${action}${dataQueryParam}`, { method: 'POST'})    
         
         if(!response.ok){
             let content = await response.json()

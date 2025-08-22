@@ -1,7 +1,7 @@
 const config = require('../config')
 const RateLimit = require('koa2-ratelimit').RateLimit;
 const router = require('@koa/router')();
-const { listApps, describeApp, reloadApp, restartApp, stopApp, gitPull, npmInstall } = require('../providers/pm2/api')
+const { listApps, describeApp, reloadApp, restartApp, stopApp, gitPull, npmInstall,npmPackageActions } = require('../providers/pm2/api')
 const { validateAdminUser } = require('../services/admin.service')
 const  { readLogsReverse } = require('../utils/read-logs.util')
 const { getCurrentGitBranch, getCurrentGitCommit } = require('../utils/git.util')
@@ -163,7 +163,7 @@ router.post('/api/apps/:appName/stop', isAuthenticated, async (ctx) => {
 router.post('/api/apps/:appName/npm-install', isAuthenticated, async (ctx) => {
     try{
         let { appName } = ctx.params
-        let apps =  await npmInstall(appName)
+        let apps =  await npmPackageActions(appName)
         console.log("apps ", apps);
         if(Array.isArray(apps) && apps.length > 0){
             return ctx.body = {
@@ -182,6 +182,34 @@ router.post('/api/apps/:appName/npm-install', isAuthenticated, async (ctx) => {
 
     }
 });
+
+router.post('/api/apps/:appName/run-scripts', isAuthenticated, async (ctx) => {
+    try{
+        let { appName } = ctx.params
+        const queryParams = ctx.query; // ge
+        //Get query parameter key 'data'
+
+        
+        let apps =  await npmPackageActions(appName,{action:"run script", cmd: queryParams.data})
+        console.log("apps ", apps);
+        if(Array.isArray(apps) && apps.length > 0){
+            return ctx.body = {
+                success: true
+            }
+        }
+        return ctx.body = {
+            success: false
+        }
+    }
+    catch (err) {
+        console.error(err)
+         ctx.status = 500; 
+         ctx.type = "application/json";
+         ctx.body = { success: false, message: err.message };
+
+    }
+});
+
 
 
 router.post('/api/apps/:appName/git-pull', isAuthenticated, async (ctx) => {

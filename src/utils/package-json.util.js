@@ -99,6 +99,48 @@ async function fileExists(path) {
 }
 
 
+const doNPMRunScript = async (wd,data) => {
+    let scriptCmd = data.cmd;
+    await createLockFile(wd, 'npm-run-script'+scriptCmd)
+    const packageLock = path.join(wd, 'package-lock.json');
+    const yarnLock = path.join(wd, 'yarn.lock');
+
+    let cmd = ""
+
+   
+
+    let packageLockExists = await fileExists(packageLock)
+    let yarnLockExists = await fileExists(yarnLock)
+    if(packageLockExists && yarnLockExists){
+         deleteLockFile(wd)
+        throw new Error("Cannot have both yarn.lock and package-lock.json")
+    }
+
+    if(packageLockExists){
+        cmd = "npm run " + scriptCmd
+    }else if(yarnLockExists){
+        cmd = "yarn " + scriptCmd
+    }
+
+
+    return new Promise((resolve, reject) => {
+        exec(cmd, { wd }, (err, stdout, stderr) => {
+            
+
+            if (!err && typeof stdout === 'string') {
+                deleteLockFile(wd)
+                resolve(stdout.trim())
+            }else if (err && typeof stderr === 'string') {
+                deleteLockFile(wd)
+                reject({out:stdout.trim(), err: stderr.trim()})
+            }else{
+             deleteLockFile(wd)
+             resolve(null)
+            }
+        });
+    })
+}
+
 const doNPMInstall = async (wd) => {
     await createLockFile(wd, 'npm-install')
     const packageLock = path.join(wd, 'package-lock.json');
@@ -157,6 +199,7 @@ const doExecuteScript = async (wd, script) => {
 module.exports = {
     getPackageJsonScripts,
     getLockedOperation,
-    doNPMInstall
+    doNPMInstall,
+    doNPMRunScript
     
 }
