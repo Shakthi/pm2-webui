@@ -25,8 +25,11 @@ async function pm2AppAction(appName, action,data){
 
         
     } catch (error) {
+        if (error.constructor.name == 'TypeError' && error.message == "Failed to fetch") {
+            return;
+        }
+
         alert(error && error.message);
-        console.log(error)
 
     }
     
