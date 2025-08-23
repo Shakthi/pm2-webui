@@ -54,8 +54,11 @@ const createLockFile = async (wd, operation) => {
 
     }   
 
-    if(returnFast){
-        throw new Error(oldContentJson.operation + ' is already in progress from ' + Date(oldContentJson.lastUpdate))
+    if (returnFast) {
+        const diffMs = Date.now() - new Date(oldContentJson.lastUpdate).getTime();
+        const diffSec = Math.floor(diffMs / 1000);
+
+        throw new Error(`${oldContentJson.operation} is already in progress from ${diffSec} seconds ago`);
     }
 
 
