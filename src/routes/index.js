@@ -183,7 +183,7 @@ router.post('/api/apps/:appName/npm-install', isAuthenticated, async (ctx) => {
     }
 });
 
-router.post('/api/apps/:appName/run-scripts', isAuthenticated, async (ctx) => {
+router.post('/api/apps/:appName/run-script', isAuthenticated, async (ctx) => {
     try{
         let { appName } = ctx.params
         const queryParams = ctx.query; // ge
