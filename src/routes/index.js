@@ -1,7 +1,7 @@
 const config = require('../config')
-const RateLimit = require('koa2-ratelimit').RateLimit;
+const RateLimit = require('koa2-ratelimit').RateLimit;``
 const router = require('@koa/router')();
-const { listApps, describeApp, reloadApp, restartApp, stopApp, gitPull, npmInstall,npmPackageActions } = require('../providers/pm2/api')
+const { listApps, describeApp, reloadApp, restartApp, stopApp, gitPull,npmPackageActions } = require('../providers/pm2/api')
 const { validateAdminUser } = require('../services/admin.service')
 const  { readLogsReverse } = require('../utils/read-logs.util')
 const { getCurrentGitBranch, getCurrentGitCommit } = require('../utils/git.util')
@@ -189,8 +189,7 @@ router.post('/api/apps/:appName/run-script', isAuthenticated, async (ctx) => {
         //Get query parameter key 'data'
 
         
-        let apps =  await npmPackageActions(appName,{action:"run script", cmd: queryParams.data})
-        console.log("apps ", apps);
+        let apps =  await npmPackageActions(appName,{action:"run-script", cmd: queryParams.data})
         if(Array.isArray(apps) && apps.length > 0){
             return ctx.body = {
                 success: true
@@ -205,7 +204,6 @@ router.post('/api/apps/:appName/run-script', isAuthenticated, async (ctx) => {
 
         
         if(err.out || err.err){
-            console.log("Hear");
             message = err.out.trim() + err.err.trim()
         }else
         {
@@ -218,6 +216,62 @@ router.post('/api/apps/:appName/run-script', isAuthenticated, async (ctx) => {
 
     }
 });
+
+
+router.post('/api/apps/:appName/stop-running-script', isAuthenticated, async (ctx) => {
+    try{
+        let { appName } = ctx.params
+        const queryParams = ctx.query; // ge
+        //Get query parameter key 'data'
+
+        
+        let apps =  await npmPackageActions(appName,{action:"run-script", cmd: queryParams.data})
+        if(Array.isArray(apps) && apps.length > 0){
+            return ctx.body = {
+                success: true
+            }
+        }
+        return ctx.body = {
+            success: false
+        }
+    }
+    catch (err) {
+        let message = ""
+
+        
+        if(err.out || err.err){
+            message = err.out.trim() + err.err.trim()
+        }else
+        {
+            message = err.message
+        }
+
+         ctx.status = 500; 
+         ctx.type = "application/json";
+         ctx.body = { success: false, message:message };
+
+    }
+});
+router.post('/api/apps/:appName/stop', isAuthenticated, async (ctx) => {
+    try{
+        let { appName } = ctx.params
+        let apps =  await stopApp(appName)
+        if(Array.isArray(apps) && apps.length > 0){
+            return ctx.body = {
+                success: true
+            }
+        }
+        return ctx.body = {
+            success: false
+        }
+    }
+    catch(err){
+        return ctx.body = {
+            'error':  err
+        }
+    }
+});
+
 
 
 

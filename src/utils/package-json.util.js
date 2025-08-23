@@ -73,6 +73,23 @@ const createLockFile = async (wd, operation) => {
     
 }
 
+const updateLockFile = async (wd, operation, pid) => {
+    const envPath = path.join(wd, '.pm2webui.scripts.lock')
+    let oldContent, oldContentJson;
+    try {
+        oldContent = await fs.promises.readFile(envPath, 'utf-8')
+        oldContentJson = JSON.parse(oldContent)
+        oldContentJson.operation = operation
+        oldContentJson.lastUpdate = new Date().getTime()
+        oldContentJson.pid = pid
+
+        await fs.promises.writeFile(envPath, JSON.stringify(oldContentJson))
+    } catch (error) {
+        
+    }   
+}
+
+
 const deleteLockFile = async (wd) => {
     const envPath = path.join(wd, '.pm2webui.scripts.lock')
     await fs.promises.unlink(envPath)
@@ -104,7 +121,8 @@ async function fileExists(path) {
 
 const doNPMRunScript = async (wd,data) => {
     let scriptCmd = data.cmd;
-    await createLockFile(wd, 'npm-run-script'+scriptCmd)
+    let operation = 'npm-run-script:'+scriptCmd
+    await createLockFile(wd, operation)
     const packageLock = path.join(wd, 'package-lock.json');
     const yarnLock = path.join(wd, 'yarn.lock');
 
@@ -127,7 +145,7 @@ const doNPMRunScript = async (wd,data) => {
 
 
     return new Promise((resolve, reject) => {
-        exec(cmd, { wd }, (err, stdout, stderr) => {
+        let child = exec(cmd, { wd }, (err, stdout, stderr) => {
             
 
             if (!err && typeof stdout === 'string') {
@@ -135,12 +153,14 @@ const doNPMRunScript = async (wd,data) => {
                 resolve(stdout.trim())
             }else if (err && typeof stderr === 'string') {
                 deleteLockFile(wd)
+
                 reject({out:stdout.trim(), err: stderr.trim()})
             }else{
-             deleteLockFile(wd)
-             resolve(null)
+                deleteLockFile(wd)
+                resolve(null)
             }
         });
+        updateLockFile(wd, operation, child.pid)
     })
 }
 
@@ -151,8 +171,6 @@ const doNPMInstall = async (wd) => {
 
     let cmd = ""
 
-    console.log('Package Lock : ', packageLock)
-    console.log('Yarn Lock : ', yarnLock)
 
     let packageLockExists = await fileExists(packageLock)
     let yarnLockExists = await fileExists(yarnLock)
@@ -169,10 +187,10 @@ const doNPMInstall = async (wd) => {
 
 
     return new Promise((resolve, reject) => {
-        exec(cmd, { wd }, (err, stdout, stderr) => {
+        let  child = exec(cmd, { wd }, (err, stdout, stderr) => {
             
-            console.log(stdout )
-            console.log(stderr )
+            // console.log(stdout )
+            // console.log(stderr )
 
             if (!err && typeof stdout === 'string') {
                 deleteLockFile(wd)
@@ -181,6 +199,7 @@ const doNPMInstall = async (wd) => {
             deleteLockFile(wd)
             resolve(null)
         });
+        updateLockFile(wd, 'npm-install', child.pid)
     })
 }
 

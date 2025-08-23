@@ -148,18 +148,18 @@ function npmPackageActions(process,data) {
                     const cwd = apps[0].pm2_env.pm_cwd;
 
                     try {
-                        if(data === null){
+                        console.log(data)
+                        if(!data){
                             await doNPMInstall(cwd);
                             pm2.disconnect();
                             resolve(`Installed dependencies in ${cwd}`);                            
                         }
-                        else{
+                        else if (data.action === 'run-script') {
                             await  doNPMRunScript(cwd,data);
                             pm2.disconnect();
                         }
                      
                     } catch (err) {
-                        console.log('ERRR',err)
                         pm2.disconnect();
                         reject(err);
                     }
@@ -174,37 +174,6 @@ function npmPackageActions(process,data) {
 }
 
 
-function npmInstall(process) {
-    return new Promise((resolve, reject) => {
-        pm2.connect((err) => {
-            if (err) return reject(err);
-
-            pm2.describe(process, async (err, apps) => {
-                if (err) {
-                    pm2.disconnect();
-                    return reject(err);
-                }
-
-                if (apps.length > 0) {
-                    const cwd = apps[0].pm2_env.pm_cwd;
-
-                    try {
-                        await doNPMInstall(cwd);
-                        pm2.disconnect();
-                        resolve(`Installed dependencies in ${cwd}`);
-                    } catch (gitErr) {
-                        pm2.disconnect();
-                        reject(gitErr);
-                    }
-
-                } else {
-                    pm2.disconnect();
-                    reject(new Error('App not found'));
-                }
-            });
-        });
-    });
-}
 
 
 function stopApp(process){
@@ -248,7 +217,6 @@ module.exports = {
     stopApp,
     restartApp,
     gitPull,
-    npmInstall,
     npmPackageActions
 }
 

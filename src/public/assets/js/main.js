@@ -25,7 +25,7 @@ async function pm2AppAction(appName, action,data){
 
         
     } catch (error) {
-        alert(error.message).
+        alert(error && error.message);
         console.log(error)
 
     }
