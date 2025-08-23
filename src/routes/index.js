@@ -221,11 +221,9 @@ router.post('/api/apps/:appName/run-script', isAuthenticated, async (ctx) => {
 router.post('/api/apps/:appName/stop-running-script', isAuthenticated, async (ctx) => {
     try{
         let { appName } = ctx.params
-        const queryParams = ctx.query; // ge
-        //Get query parameter key 'data'
-
         
-        let apps =  await npmPackageActions(appName,{action:"run-script", cmd: queryParams.data})
+        
+        let apps =  await npmPackageActions(appName,{action:"stop-running-script"})
         if(Array.isArray(apps) && apps.length > 0){
             return ctx.body = {
                 success: true

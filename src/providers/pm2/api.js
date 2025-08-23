@@ -2,7 +2,7 @@ const pm2 = require('pm2');
 const { bytesToSize, timeSince } = require('./ux.helper')
 
 const { getPullCurrentGitBranch } = require('../../utils/git.util')
-const { doNPMInstall, doNPMRunScript } = require('../../utils/package-json.util')
+const { doNPMInstall, doNPMRunScript, doStopNPMRunScript } = require('../../utils/package-json.util')
 
 function listApps(){
     return new Promise((resolve, reject) => {
@@ -148,7 +148,6 @@ function npmPackageActions(process,data) {
                     const cwd = apps[0].pm2_env.pm_cwd;
 
                     try {
-                        console.log(data)
                         if(!data){
                             await doNPMInstall(cwd);
                             pm2.disconnect();
@@ -156,6 +155,9 @@ function npmPackageActions(process,data) {
                         }
                         else if (data.action === 'run-script') {
                             await  doNPMRunScript(cwd,data);
+                            pm2.disconnect();
+                        }else if (data.action === 'stop-running-script') {
+                            await doStopNPMRunScript(cwd,data);
                             pm2.disconnect();
                         }
                      

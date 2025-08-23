@@ -92,6 +92,10 @@ const updateLockFile = async (wd, operation, pid) => {
 
 const deleteLockFile = async (wd) => {
     const envPath = path.join(wd, '.pm2webui.scripts.lock')
+    if (!fs.existsSync(envPath)) {
+        return
+    }
+    
     await fs.promises.unlink(envPath)
 }
 
@@ -104,7 +108,7 @@ const getLockedOperation = async (wd) => {
         if (oldContentJson.lastUpdate < new Date().getTime() - 60000) {
             return null
         }
-        return oldContentJson.operation
+        return oldContentJson
     } catch (error) {
         return null
     }
@@ -133,7 +137,7 @@ const doNPMRunScript = async (wd,data) => {
     let packageLockExists = await fileExists(packageLock)
     let yarnLockExists = await fileExists(yarnLock)
     if(packageLockExists && yarnLockExists){
-         deleteLockFile(wd)
+         await deleteLockFile(wd)
         throw new Error("Cannot have both yarn.lock and package-lock.json")
     }
 
@@ -163,6 +167,30 @@ const doNPMRunScript = async (wd,data) => {
         updateLockFile(wd, operation, child.pid)
     })
 }
+
+const doStopNPMRunScript = async (wd,data) => {
+    let dataOperation = await getLockedOperation(wd)
+    if (dataOperation == null) {
+    
+        throw new Error("There is no running operation(No lock file found)")
+        
+    }
+
+    try {
+        await deleteLockFile(wd)
+
+    } catch (error) {
+
+    }
+
+    return new Promise((resolve, reject) => {
+        process.kill(dataOperation.pid)
+       
+        resolve(true)
+    })
+
+}
+
 
 const doNPMInstall = async (wd) => {
     await createLockFile(wd, 'npm-install')
@@ -203,6 +231,7 @@ const doNPMInstall = async (wd) => {
     })
 }
 
+
 const doExecuteScript = async (wd, script) => {
     let cmd = "npm run " + script
     await createLockFile(wd, cmd)
@@ -222,6 +251,7 @@ module.exports = {
     getPackageJsonScripts,
     getLockedOperation,
     doNPMInstall,
-    doNPMRunScript
+    doNPMRunScript,
+    doStopNPMRunScript
     
 }
