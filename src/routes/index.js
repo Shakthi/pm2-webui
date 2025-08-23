@@ -164,7 +164,6 @@ router.post('/api/apps/:appName/npm-install', isAuthenticated, async (ctx) => {
     try{
         let { appName } = ctx.params
         let apps =  await npmPackageActions(appName)
-        console.log("apps ", apps);
         if(Array.isArray(apps) && apps.length > 0){
             return ctx.body = {
                 success: true
@@ -202,10 +201,20 @@ router.post('/api/apps/:appName/run-script', isAuthenticated, async (ctx) => {
         }
     }
     catch (err) {
-        console.error(err)
+        let message = ""
+
+        
+        if(err.out || err.err){
+            console.log("Hear");
+            message = err.out.trim() + err.err.trim()
+        }else
+        {
+            message = err.message
+        }
+
          ctx.status = 500; 
          ctx.type = "application/json";
-         ctx.body = { success: false, message: err.message };
+         ctx.body = { success: false, message:message };
 
     }
 });
