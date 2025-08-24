@@ -40,7 +40,7 @@ npm run start:dev
 ##### SCREENSHOTS
 ![PM2 Webui Login](/screenshots/login.png?raw=true "PM2 WebUI Login")
 ![PM2 Webui Dashboard](/screenshots/dashboard.png?raw=true "PM2 WebUI Dashboard")
-![PM2 Webui App](/screenshots/app.png?raw=true "PM2 WebUI App")
+![PM2 Webui App](/screenshots/GitPull%2BPackgesupport.png?raw=true "PM2 WebUI App")
 
 ##### LICENSE
 MIT - Copyright (c) 2022 Surya T
